@@ -1,4 +1,4 @@
-let puzzleString = '.7.89.....5....3.4.2..4..1.5689..472...6.....1.7.5.63873.1.2.8.6..47.1..2.9.387.6'
+let puzzleString = '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.'
 
 let row = "b"
 let column = "1"
@@ -49,6 +49,7 @@ class SudokuSolver {
   validate(puzzleString) {
     if(puzzleString.length != 81 ){
       console.log("string has more or less than 81 characters")
+      return false;
     } else {
       console.log("string has 81 characters")
     }
@@ -58,8 +59,32 @@ class SudokuSolver {
 
     if(notValid){
       console.log("string has unallowed characters")
+      return false;
     }
 
+    // check row for validation
+
+    for (const row in rowsTemplate) {
+      let arrayOfNumbers = [];
+
+      for (let element of rowsTemplate[row]) { // Iterate through elements in the row
+        let value = puzzleString.charAt(element);
+    
+        if (value !== '.' && arrayOfNumbers.includes(value)) {
+          console.log(`Duplicate number ${value} in row ${row}`);
+          return false; // If duplicate found, return false
+        }
+        arrayOfNumbers.push(value);
+      }
+      // Reset the array for the next row iteration
+      arrayOfNumbers = [];
+    }
+
+    // check col for validation
+    // check region for validation
+    // also take these out of this function and minimize the reuse
+
+    return true
 
   }
 
@@ -82,6 +107,7 @@ class SudokuSolver {
     
     //console.log("\n" + `These are the numbers in row_${row}`);
     //console.log(rowNumbers);
+    
 
     // Convert rowNumbers to a Set for efficient look-up
     const characterSet = new Set(rowNumbers.filter(item => !isNaN(item)).map(Number));
@@ -177,7 +203,6 @@ class SudokuSolver {
   }
 
   checkSquare(puzzleString, row, column, value){
-    sudokuSolver.validate(puzzleString);
 
     const validRowNumbers = sudokuSolver.checkRowPlacement(puzzleString, row, column, value);
     const validColNumbers = sudokuSolver.checkColPlacement(puzzleString, row, column, value);
@@ -267,10 +292,8 @@ class SudokuSolver {
           console.log(puzzleString);
 
         }
-        //console.log(regionNumbers[number])
       }
     }
-    // region numbers check with charAt
   }
     console.log(`here is the solution: ${puzzleString}`)
     return puzzleString
@@ -279,6 +302,14 @@ class SudokuSolver {
 }
 
 const sudokuSolver = new SudokuSolver();
+const validate = sudokuSolver.validate(puzzleString);
+
+    if(validate == false){
+      const errorMessage = "invalid string";
+      return errorMessage 
+    } else {
+      console.log("all is good")
+    }
 
 //sudokuSolver.checkSquare(puzzleString, row, column, value);
 sudokuSolver.solve(puzzleString);

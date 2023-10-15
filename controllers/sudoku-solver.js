@@ -1,4 +1,4 @@
-let puzzleString = '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.'
+let puzzleString = '.7.89.....5....3.4.2..4..1.5689..472...6.....1.7.5.63873.1.2.8.6..47.1..2.9.387.6'
 
 let row = "b"
 let column = "1"
@@ -272,12 +272,8 @@ class SudokuSolver {
     }
     // region numbers check with charAt
   }
-
-    console.log(puzzleString.charAt(9));
-
-    // check every region from 1 -> 9
-    
-
+    console.log(`here is the solution: ${puzzleString}`)
+    return puzzleString
 
   }
 }

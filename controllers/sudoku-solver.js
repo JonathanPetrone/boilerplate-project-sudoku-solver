@@ -1,8 +1,8 @@
 let puzzleString = '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.'
 
-let row = "a"
+let row = "b"
 let column = "1"
-let value = 8
+let value = 9
 
 const rowsTemplate = {
   a: [0, 1, 2, 3, 4, 5, 6, 7, 8],
@@ -41,6 +41,9 @@ const regionTemplate = {
 }
 
 
+const numbers = [1,2,3,4,5,6,7,8,9];
+
+
 class SudokuSolver {
 
   validate(puzzleString) {
@@ -62,25 +65,227 @@ class SudokuSolver {
 
   checkRowPlacement(puzzleString, row, column, value) {
 
+    // displays the index of "sudoku-squares" inside a row
+    const checkRow = rowsTemplate[row];
 
+    // for storing the numbers
+    let rowNumbers = [];
+
+    // This code is collecting characters from the puzzleString at the specified indexes in the checkRow array and stores them in the rowNumbers array.
+    for (let index of checkRow) {
+      if (index >= 0 && index < puzzleString.length) {
+        rowNumbers.push(puzzleString.charAt(index));
+      } else {
+        rowNumbers.push(null);
+      }
+    }
+    
+    //console.log("\n" + `These are the numbers in row_${row}`);
+    //console.log(rowNumbers);
+
+    // Convert rowNumbers to a Set for efficient look-up
+    const characterSet = new Set(rowNumbers.filter(item => !isNaN(item)).map(Number));
+
+    // Filter numbers to include only elements not found in characterSet
+    const resultArray = numbers.filter(item => !characterSet .has(item));
+    
+    //console.log("\n" + `These are the numbers left to placed in row_${row}`);
+    //console.log(resultArray);
+    //console.log("\n" + "______________________________" + "\n");
+
+    return resultArray;
   }
 
   checkColPlacement(puzzleString, row, column, value) {
+    const checkCol = columnTemplate[column];
+
+    let colNumbers = [];
+
+    for (let index of checkCol) {
+      if (index >= 0 && index < puzzleString.length) {
+        colNumbers.push(puzzleString.charAt(index));
+      } else {
+        colNumbers.push(null);
+      }
+    }
+    
+    // console.log(`These are the numbers in col_${column}`);
+    // console.log(colNumbers)
+
+    // Convert colNumbers to a Set for efficient look-up
+    const characterSet = new Set(colNumbers.filter(item => !isNaN(item)).map(Number));
+
+    // Filter numbers to include only elements not found in characterSet
+    const resultArray = numbers.filter(item => !characterSet .has(item));
+    
+    //console.log("\n" + `These are the numbers left to placed in col_${column}`);
+    //console.log(resultArray);
+    //console.log("\n" + "______________________________" + "\n");
+
+    return resultArray;
 
   }
 
   checkRegionPlacement(puzzleString, row, column, value) {
 
+    const sharedNumber = rowsTemplate[row].filter(cell => columnTemplate[column].includes(cell));
+    let numOfRegion;
+
+    if (sharedNumber.length > 0) {
+      // Extract the shared number
+      const number = sharedNumber[0];
+      // console.log(`Shared number: ${number}`);
+      
+      // Find in which region the shared number is
+      for (const region in regionTemplate) {
+        if (regionTemplate[region].includes(number)) {
+          console.log(`Shared number is in region ${region}`);
+          numOfRegion = region;
+          break;
+        }
+      }
+    } else {
+      console.log("No shared number found.");
+    }
+
+    const checkRegion = regionTemplate[numOfRegion];
+
+    let regionNumbers = [];
+
+    for (let index of checkRegion) {
+      if (index >= 0 && index < puzzleString.length) {
+        regionNumbers.push(puzzleString.charAt(index));
+      } else {
+        regionNumbers.push(null);
+      }
+    }
+    
+    //console.log(`These are the numbers in region_${numOfRegion}`);
+    //console.log(regionNumbers);
+
+    // Convert selectedCharacters to a Set for efficient look-up
+    const characterSet = new Set(regionNumbers.filter(item => !isNaN(item)).map(Number));
+
+    // Filter numbers to include only elements not found in set2
+    const resultArray = numbers.filter(item => !characterSet .has(item));
+    
+    // console.log("\n" + `These are the numbers left to placed in region_${numOfRegion}`);
+    // console.log(resultArray);
+    // console.log("\n" + "______________________________" + "\n");
+
+    return resultArray;
+  }
+
+  checkSquare(puzzleString, row, column, value){
+    sudokuSolver.validate(puzzleString);
+
+    const validRowNumbers = sudokuSolver.checkRowPlacement(puzzleString, row, column, value);
+    const validColNumbers = sudokuSolver.checkColPlacement(puzzleString, row, column, value);
+    const validRegionNumbers = sudokuSolver.checkRegionPlacement(puzzleString, row, column, value);
+
+    //console.log(validRowNumbers)
+    //console.log(validColNumbers)
+    //console.log(validRegionNumbers)
+
+    const validNumbersInSquare = validRowNumbers.filter(number => validColNumbers.includes(number) && validRegionNumbers.includes(number));
+
+    if (validNumbersInSquare.length > 0) {
+      console.log("\n" + `Valid numbers in row_${row} col_${column}: ${validNumbersInSquare}`);
+    } else {
+      console.log("\n" + `No valid numbers in row_${row} col_${column}`);
+    }
+
+    return validNumbersInSquare
   }
 
   solve(puzzleString) {
+
+    while (puzzleString.includes('.')) {
+
+    for (const region in regionTemplate) {
+      // console.log(`Region ${region} has these indexes ${regionTemplate[region]}`);
+
+      const checkRegion = regionTemplate[region];
+
+      let regionNumbers = [];
+
+      for (let index of checkRegion) {
+      if (index >= 0 && index < puzzleString.length) {
+        regionNumbers.push(puzzleString.charAt(index));
+      } else {
+        regionNumbers.push(null);
+      }
+    }
+      console.log(`Region ${region} has these numbers ${regionNumbers}`);
+
+      for (const number in regionNumbers){
+        if(regionNumbers[number] == "."){
+          const squareToCheck = regionTemplate[region][number];
+          let regionForSquare = region
+          let rowForSquare;
+          let colForSquare;
+
+          console.log(`there is a dot at index: ${number} of Region ${region} and the square number is ${squareToCheck}`)
+
+          for (const row in rowsTemplate) {
+            if (rowsTemplate[row].includes(squareToCheck)) {
+              rowForSquare = row
+              console.log(`the row is ${rowForSquare}`)
+              break;
+            }
+          }
+          
+          for (const column in columnTemplate) {
+            if (columnTemplate[column].includes(squareToCheck)) {
+              colForSquare = column
+              console.log(`the column is ${colForSquare}`)
+              break;
+            }
+          }
+
+          console.log(`the region is ${regionForSquare}`)
+          const validNumbersInSquare = sudokuSolver.checkSquare(puzzleString, rowForSquare, colForSquare, value)
+          console.log("here are the numbers for this " + validNumbersInSquare);
+          if (validNumbersInSquare.length === 1) {
+            console.log('There is only one valid number in the array, adding it to the puzzleString');
+            const numberToAdd = validNumbersInSquare[0];
+            console.log(numberToAdd)
+
+            // Convert the string to an array
+            let puzzleArray = puzzleString.split('');
+
+            // Change the second character to '3' (index 1 because JavaScript uses 0-based indexing)
+            puzzleArray[squareToCheck] = numberToAdd;
+
+            // Convert the array back to a string
+            puzzleString = puzzleArray.join('');
+
+          } else {
+            console.log('There are more than one valid number');
+          }
+
+          console.log(puzzleString);
+
+        }
+        //console.log(regionNumbers[number])
+      }
+    }
+    // region numbers check with charAt
+  }
+
+    console.log(puzzleString.charAt(9));
+
+    // check every region from 1 -> 9
     
+
+
   }
 }
 
 const sudokuSolver = new SudokuSolver();
 
-sudokuSolver.validate(puzzleString);
+//sudokuSolver.checkSquare(puzzleString, row, column, value);
+sudokuSolver.solve(puzzleString);
 
 
 module.exports = SudokuSolver;

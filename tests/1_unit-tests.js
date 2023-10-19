@@ -31,28 +31,28 @@ suite("UnitTests", () => {
     });
 
     test("Logic handles a valid row placement", function (done) {
-      assert.equal(solver.checkRowPlacement(validPuzzle, "a", "2", "9"), true);
+      assert.equal(solver.validRow(validPuzzle, "a", "2", "9"), true);
       done();
     });
 
     test("Logic handles an invalid row placement", function (done) {
-      assert.equal(solver.checkRowPlacement(validPuzzle, "a", "2", "1"), false);
+      assert.equal(solver.validRow(validPuzzle, "a", "2", "1"), false);
       done();
     });
 
     test("Logic handles a valid column placement", function (done) {
-      assert.equal(solver.checkColPlacement(validPuzzle, "a", "2", "8"), true);
+      assert.equal(solver.validColumn(validPuzzle, "a", "2", "8"), true);
       done();
     });
 
     test("Logic handles an invalid column placement", function (done) {
-      assert.equal(solver.checkColPlacement(validPuzzle, "a", "2", "9"), false);
+      assert.equal(solver.validColumn(validPuzzle, "a", "2", "9"), false);
       done();
     });
 
     test("Logic handles a valid region (3x3 grid) placement", function (done) {
       assert.equal(
-        solver.checkRegionPlacement(validPuzzle, "a", "2", "3"),
+        solver.validRegion(validPuzzle, "a", "2", "3"),
         true
       );
       done();
@@ -60,7 +60,7 @@ suite("UnitTests", () => {
 
     test("Logic handles an invalid region (3x3 grid) placement", function (done) {
       assert.equal(
-        solver.checkRegionPlacement(validPuzzle, "a", "2", "1"),
+        solver.validRegion(validPuzzle, "a", "2", "1"),
         false
       );
       done();

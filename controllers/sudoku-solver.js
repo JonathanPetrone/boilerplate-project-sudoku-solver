@@ -1,8 +1,8 @@
-let puzzleString = '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.'
+let puzzleString = '1.5..2.84..63.12.7.24.5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.'
 
-let row = "b"
+let row = "a"
 let column = "1"
-let value = 9
+let value = 1
 
 const rowsTemplate = {
   a: [0, 1, 2, 3, 4, 5, 6, 7, 8],
@@ -43,8 +43,13 @@ const regionTemplate = {
 
 const numbers = [1,2,3,4,5,6,7,8,9];
 
-
 class SudokuSolver {
+
+  constructor(rowsTemplate, columnTemplate, regionTemplate) {
+    this.rowsTemplate = rowsTemplate;
+    this.columnTemplate = columnTemplate;
+    this.regionTemplate = regionTemplate;
+  }
 
   validate(puzzleString) {
     if(puzzleString.length != 81 ){
@@ -63,7 +68,6 @@ class SudokuSolver {
     }
 
     // check row for validation
-
     for (const row in rowsTemplate) {
       let arrayOfNumbers = [];
 
@@ -75,17 +79,47 @@ class SudokuSolver {
           return false; // If duplicate found, return false
         }
         arrayOfNumbers.push(value);
+        console.log(arrayOfNumbers)
       }
       // Reset the array for the next row iteration
       arrayOfNumbers = [];
     }
 
     // check col for validation
+    for (const col in columnTemplate) {
+      let arrayOfNumbers = [];
+
+      for (let element of columnTemplate[col]) { // Iterate through elements in the row
+        let value = puzzleString.charAt(element);
+    
+        if (value !== '.' && arrayOfNumbers.includes(value)) {
+          console.log(`Duplicate number ${value} in col ${col}`);
+          return false; // If duplicate found, return false
+        }
+        arrayOfNumbers.push(value);
+      }
+      // Reset the array for the next row iteration
+      arrayOfNumbers = [];
+    }
+
     // check region for validation
-    // also take these out of this function and minimize the reuse
+    for (const region in regionTemplate) {
+      let arrayOfNumbers = [];
+
+      for (let element of regionTemplate[region]) { // Iterate through elements in the row
+        let value = puzzleString.charAt(element);
+    
+        if (value !== '.' && arrayOfNumbers.includes(value)) {
+          console.log(`Duplicate number ${value} in region ${region}`);
+          return false; // If duplicate found, return false
+        }
+        arrayOfNumbers.push(value);
+      }
+      // Reset the array for the next row iteration
+      arrayOfNumbers = [];
+    }
 
     return true
-
   }
 
   checkRowPlacement(puzzleString, row, column, value) {
@@ -116,7 +150,7 @@ class SudokuSolver {
     const resultArray = numbers.filter(item => !characterSet .has(item));
     
     //console.log("\n" + `These are the numbers left to placed in row_${row}`);
-    //console.log(resultArray);
+    console.log(resultArray);
     //console.log("\n" + "______________________________" + "\n");
 
     return resultArray;
@@ -155,6 +189,13 @@ class SudokuSolver {
   checkRegionPlacement(puzzleString, row, column, value) {
 
     const sharedNumber = rowsTemplate[row].filter(cell => columnTemplate[column].includes(cell));
+    console.log(sharedNumber);
+    const numberAtSquare = puzzleString[sharedNumber];
+    console.log(numberAtSquare);
+    let tryColumn = sudokuSolver.checkColPlacement(puzzleString, row, column, value);
+    const validCol = tryColumn.includes(numberAtSquare);
+    console.log(validCol);
+
     let numOfRegion;
 
     if (sharedNumber.length > 0) {
@@ -223,7 +264,203 @@ class SudokuSolver {
     return validNumbersInSquare
   }
 
+  validNumber(puzzleString, row, column, value) {
+    const validation = sudokuSolver.validate(puzzleString)
+
+    if(validation == false){
+      console.log("validation failed during solving");
+      return false
+    }
+
+    const checkValidNumbers = sudokuSolver.checkSquare(puzzleString, row, column, value);
+    
+    // Extract shared numbers from rowsTemplate and columnTemplate
+    const sharedNumber = rowsTemplate[row].filter(cell => columnTemplate[column].includes(cell));
+    
+    // Initialize numberAtSquare as undefined
+    let numberAtSquare;
+  
+    // Check if there's a shared number and get the value from puzzleString
+    if (sharedNumber.length > 0) {
+      const rowIndex = sharedNumber[0]; // Assuming it's the row index
+      numberAtSquare = puzzleString.charAt(rowIndex);
+    }
+  
+    // Check if `numberAtSquare` is a number (not undefined) and not already in `validNumbers`
+    if (!isNaN(numberAtSquare)) {
+      checkValidNumbers.push(numberAtSquare);
+    }
+    
+    let found = false
+
+    for (const number of checkValidNumbers) {
+      if (number == value) {
+        console.log("The array contains " + number);
+        found = true;
+        break;
+      }
+    }
+  
+    if (found) {
+      console.log(`The validNumbers contain ${value}.`);
+      return true;
+    } else {
+      console.log(`The validNumbers do not contain ${value}.`);
+      return false;
+    }
+  }
+
+  validRow(puzzleString, row, column, value) {
+
+    const validation = sudokuSolver.validate(puzzleString)
+
+    if(validation == false){
+      console.log("validation failed during solving");
+      return false
+    }
+
+    const checkValidNumbers = sudokuSolver.checkRowPlacement(puzzleString, row, column, value);
+    
+    // Extract shared numbers from rowsTemplate and columnTemplate
+    const sharedNumber = rowsTemplate[row].filter(cell => columnTemplate[column].includes(cell));
+    
+    // Initialize numberAtSquare as undefined
+    let numberAtSquare;
+  
+    // Check if there's a shared number and get the value from puzzleString
+    if (sharedNumber.length > 0) {
+      const rowIndex = sharedNumber[0]; // Assuming it's the row index
+      numberAtSquare = puzzleString.charAt(rowIndex);
+    }
+  
+    // Check if `numberAtSquare` is a number (not undefined) and not already in `validNumbers`
+    if (!isNaN(numberAtSquare)) {
+      checkValidNumbers.push(numberAtSquare);
+    }
+    
+    let found = false
+
+    for (const number of checkValidNumbers) {
+      if (number == value) {
+        console.log("The array contains " + number);
+        found = true;
+        break;
+      }
+    }
+  
+    if (found) {
+      console.log(`The validNumbers contain ${value}.`);
+      return true;
+    } else {
+      console.log(`The validNumbers do not contain ${value}.`);
+      return false;
+    }
+  }
+
+  validColumn(puzzleString, row, column, value) {
+    const checkValidNumbers = sudokuSolver.checkColPlacement(puzzleString, row, column, value);
+    
+    const validation = sudokuSolver.validate(puzzleString)
+
+    if(validation == false){
+      console.log("validation failed during solving");
+      return false
+    }
+
+    // Extract shared numbers from rowsTemplate and columnTemplate
+    const sharedNumber = rowsTemplate[row].filter(cell => columnTemplate[column].includes(cell));
+    
+    // Initialize numberAtSquare as undefined
+    let numberAtSquare;
+  
+    // Check if there's a shared number and get the value from puzzleString
+    if (sharedNumber.length > 0) {
+      const rowIndex = sharedNumber[0]; // Assuming it's the row index
+      numberAtSquare = puzzleString.charAt(rowIndex);
+    }
+  
+    // Check if `numberAtSquare` is a number (not undefined) and not already in `validNumbers`
+    if (!isNaN(numberAtSquare)) {
+      checkValidNumbers.push(numberAtSquare);
+    }
+    
+    let found = false
+
+    for (const number of checkValidNumbers) {
+      if (number == value) {
+        console.log("The array contains " + number);
+        found = true;
+        break;
+      }
+    }
+  
+    if (found) {
+      console.log(`The validNumbers contain ${value}.`);
+      return true;
+    } else {
+      console.log(`The validNumbers do not contain ${value}.`);
+      return false;
+    }
+  }
+
+  validRegion(puzzleString, row, column, value) {
+
+    const validation = sudokuSolver.validate(puzzleString)
+
+    if(validation == false){
+      console.log("validation failed during solving");
+      return false
+    }
+
+    const checkValidNumbers = sudokuSolver.checkRegionPlacement(puzzleString, row, column, value);
+    
+    // Extract shared numbers from rowsTemplate and columnTemplate
+    const sharedNumber = rowsTemplate[row].filter(cell => columnTemplate[column].includes(cell));
+    
+    // Initialize numberAtSquare as undefined
+    let numberAtSquare;
+  
+    // Check if there's a shared number and get the value from puzzleString
+    if (sharedNumber.length > 0) {
+      const rowIndex = sharedNumber[0]; // Assuming it's the row index
+      numberAtSquare = puzzleString.charAt(rowIndex);
+    }
+  
+    // Check if `numberAtSquare` is a number (not undefined) and not already in `validNumbers`
+    if (!isNaN(numberAtSquare)) {
+      checkValidNumbers.push(numberAtSquare);
+    }
+    
+    let found = false
+
+    for (const number of checkValidNumbers) {
+      if (number == value) {
+        console.log("The array contains " + number);
+        found = true;
+        break;
+      }
+    }
+  
+    if (found) {
+      console.log(`The validNumbers contain ${value}.`);
+      return true;
+    } else {
+      console.log(`The validNumbers do not contain ${value}.`);
+      return false;
+    }
+  }
+
   solve(puzzleString) {
+    
+    const validation = sudokuSolver.validate(puzzleString)
+
+    if(validation == false){
+      console.log("validation failed during solving");
+      return false
+    }
+
+
+    let triesToSolve = 0;
 
     while (puzzleString.includes('.')) {
 
@@ -290,7 +527,12 @@ class SudokuSolver {
           }
 
           console.log(puzzleString);
+          triesToSolve++
 
+          if (triesToSolve > 100){
+            console.log("couldn't solve")
+            return "false"
+          }
         }
       }
     }
@@ -302,17 +544,16 @@ class SudokuSolver {
 }
 
 const sudokuSolver = new SudokuSolver();
-const validate = sudokuSolver.validate(puzzleString);
+/*const validate = sudokuSolver.validate(puzzleString);
 
     if(validate == false){
-      const errorMessage = "invalid string";
-      return errorMessage 
+      console.log("all is not good")
     } else {
       console.log("all is good")
     }
-
-//sudokuSolver.checkSquare(puzzleString, row, column, value);
-sudokuSolver.solve(puzzleString);
+*/
+sudokuSolver.validColumn(puzzleString, row, column, value);
+//sudokuSolver.solve(puzzleString);
 
 
 module.exports = SudokuSolver;
